@@ -1,0 +1,2 @@
+# Configuration for streamlit-authenticator (e.g., usernames, passwords, roles).
+# Will be used in conjunction with `auth.py`.

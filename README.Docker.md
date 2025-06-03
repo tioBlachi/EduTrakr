@@ -33,10 +33,10 @@ In the terminal, make sure you are in the root directory of the project containi
 
 run
 ```bash
-docker compose up
+make up
 ```
 ### This will:
-- Build the Docker container using Dockerfile
+- Build the Docker container using Dockerfile through the Makefile
 - Mount the current directory into the container
 - Start the Streamlit app
 

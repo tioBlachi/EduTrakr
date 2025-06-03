@@ -31,7 +31,7 @@ cd EduTrakr
 
 In the terminal, make sure you are in the root directory of the project containing the Dockerfile
 
-run
+run in terminal
 ```bash
 make up
 ```

@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   edutrakr:
     build: .
@@ -7,4 +5,4 @@ services:
       - "8501:8501"
     volumes:
       - .:/app
-    command: streamlit run app.py --server.fileWatcherType=poll
+    command: streamlit run app.py #--server.fileWatcherType=poll

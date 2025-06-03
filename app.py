@@ -16,4 +16,4 @@ st.write("Testing to see if live updates work, they do")
 pressed = st.button("Press me")
 
 if pressed:
-    st.write("You pressed the button")
+    st.write("You pressed the button!")

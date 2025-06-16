@@ -1,6 +1,5 @@
 streamlit
-streamlit-authenticator
 pandas
 matplotlib
-pyyaml
 pytest
+faker

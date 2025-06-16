@@ -1,18 +1,17 @@
 """
-This file will contain utility fucntions that are now
+This file will contain utility fucntions that are not
+file specific
 
 """
 
 import re
 
-def is_valid_email(email):
+def is_valid_email(email: str) -> bool:
     """
     Validate an email using regex
     """
     pattern = r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
     return re.fullmatch(pattern, email) is not None
-
-import re
 
 def is_valid_name(name: str) -> bool:
     """

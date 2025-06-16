@@ -11,3 +11,14 @@ def is_valid_email(email):
     """
     pattern = r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
     return re.fullmatch(pattern, email) is not None
+
+import re
+
+def is_valid_name(name: str) -> bool:
+    """
+    Returns True if the name contains only letters and spaces,
+    and starts with a letter.
+    """
+    pattern = r"^[A-Za-z][A-Za-z\s'-]*$"
+    return bool(re.fullmatch(pattern, name.strip()))
+

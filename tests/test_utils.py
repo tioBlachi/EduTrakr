@@ -1,4 +1,4 @@
-from utils import is_valid_email, is_valid_name
+from EduTrakr.utils import is_valid_email, is_valid_name
 
 def test_valid_emails():
     assert is_valid_email("user@example.com")

@@ -90,45 +90,45 @@ def generate_db_data(db_name='edutrakr.db', num_students=20, num_instructors=10,
         )
         student_ids.append(user_id)
 
-        # Course names, 15 should be enough for generating data
-        course_names = [
-            "Introduction to Python",
-            "Data Science Fundamentals",
-            "Web Development Basics",
-            "Machine Learning Essentials",
-            "Database Management Systems",
-            "Cloud Computing Concepts",
-            "Cybersecurity Fundamentals",
-            "Mobile App Development",
-            "Software Engineering Principles",
-            "Artificial Intelligence Overview", 
-            "Game Development with Unity",
-            "Digital Marketing Strategies",
-            "Project Management Essentials",
-            "UX Design",
-            "Blockchain Technology Basics"  
-        ]
+    # Course names, 15 should be enough for generating data
+    course_names = [
+        "Introduction to Python",
+        "Data Science Fundamentals",
+        "Web Development Basics",
+        "Machine Learning Essentials",
+        "Database Management Systems",
+        "Cloud Computing Concepts",
+        "Cybersecurity Fundamentals",
+        "Mobile App Development",
+        "Software Engineering Principles",
+        "Artificial Intelligence Overview", 
+        "Game Development with Unity",
+        "Digital Marketing Strategies",
+        "Project Management Essentials",
+        "UX Design",
+        "Blockchain Technology Basics"  
+    ]
 
-        # Create courses
-        course_ids = []
-        for name in course_names[:num_courses]:
-            instructor_id = random.choice(instructor_ids)
-            cursor.execute(
-                "INSERT INTO courses (name, instructor_id) VALUES (?, ?)",
-                (name, instructor_id)
-            )
-            course_ids.append(cursor.lastrowid)
+    # Create courses
+    course_ids = []
+    for name in course_names[:num_courses]:
+        instructor_id = random.choice(instructor_ids)
+        cursor.execute(
+            "INSERT INTO courses (name, instructor_id) VALUES (?, ?)",
+            (name, instructor_id)
+        )
+        course_ids.append(cursor.lastrowid)
 
-        # Generate study sessions for each student
-        for student_id in student_ids:
-            enrolled = random.sample(course_ids, random.randint(3, 5))
-            for course_id in enrolled:
-                for _ in range(random.randint(min_sessions, max_sessions)):
-                    start = fake.date_time_between(start_date='-356d', end_date='now')
-                    end = start + timedelta(minutes=random.randint(10, 90))
-                    cursor.execute(
-                        "INSERT INTO study_sessions (user_id, course_id, start_time, end_time) VALUES (?, ?, ?, ?)",
-                        (student_id, course_id, start.isoformat(), end.isoformat()))
+    # Generate study sessions for each student
+    for student_id in student_ids:
+        enrolled = random.sample(course_ids, random.randint(3, 5))
+        for course_id in enrolled:
+            for _ in range(random.randint(min_sessions, max_sessions)):
+                start = fake.date_time_between(start_date='-356d', end_date='now')
+                end = start + timedelta(minutes=random.randint(10, 90))
+                cursor.execute(
+                    "INSERT INTO study_sessions (user_id, course_id, start_time, end_time) VALUES (?, ?, ?, ?)",
+                    (student_id, course_id, start.isoformat(), end.isoformat()))
                     
     
     conn.commit()

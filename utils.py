@@ -7,10 +7,12 @@ file specific
 import re
 from faker import Faker
 from datetime import timedelta
-import hashlib
+from database import initialize_database
+import hashlib, random, sqlite3, os
 
 
 fake = Faker()
+
 
 def hash_password(password):
     return hashlib.sha256(password.encode()).hexdigest()
@@ -23,6 +25,7 @@ def is_valid_email(email: str) -> bool:
     pattern = r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
     return re.fullmatch(pattern, email) is not None
 
+
 def is_valid_name(name: str) -> bool:
     """
     Returns True if the name contains only letters and spaces,
@@ -30,6 +33,7 @@ def is_valid_name(name: str) -> bool:
     """
     pattern = r"^[A-Za-z][A-Za-z\s'-]*$"
     return bool(re.fullmatch(pattern, name.strip()))
+
 
 def is_valid_password(password: str) -> bool:
     """
@@ -39,3 +43,114 @@ def is_valid_password(password: str) -> bool:
     """
     pattern = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$"
     return bool(re.fullmatch(pattern, password))
+
+
+def generate_db_data(db_name='edutrakr.db', num_students=20, num_instructors=10, num_courses=15, min_sessions=30, max_sessions=40):
+    fake.unique.clear()  # Clear unique data to avoid duplicates
+    conn = sqlite3.connect(db_name)
+    cursor = conn.cursor()
+
+    # Create instructors
+    instructor_ids = []
+    for _ in range(num_instructors):
+        name = fake.name()
+        email = fake.unique.email()
+        password = hash_password(fake.password())
+        role = 'instructor'
+
+        cursor.execute(
+            "INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)",
+            (name, email, password, role)
+        )
+
+        user_id = cursor.lastrowid
+        cursor.execute(
+            "INSERT INTO instructors (user_id) VALUES (?)",
+            (user_id,)
+        )
+        instructor_ids.append(user_id)
+
+    # create students
+    student_ids = []
+    for _ in range(num_students):
+        name = fake.name()
+        email = fake.unique.email()
+        password = hash_password(fake.password())
+        role = 'student'
+
+        cursor.execute(
+            "INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)",
+            (name, email, password, role)
+        )
+
+        user_id = cursor.lastrowid
+        cursor.execute(
+            "INSERT INTO students (user_id) VALUES (?)",
+            (user_id,)
+        )
+        student_ids.append(user_id)
+
+    # Course names, 15 should be enough for generating data
+    course_names = [
+        "Introduction to Python",
+        "Data Science Fundamentals",
+        "Web Development Basics",
+        "Machine Learning Essentials",
+        "Database Management Systems",
+        "Cloud Computing Concepts",
+        "Cybersecurity Fundamentals",
+        "Mobile App Development",
+        "Software Engineering Principles",
+        "Artificial Intelligence Overview", 
+        "Game Development with Unity",
+        "Digital Marketing Strategies",
+        "Project Management Essentials",
+        "UX Design",
+        "Blockchain Technology Basics"  
+    ]
+
+    # Create courses
+    course_ids = []
+    for name in course_names[:num_courses]:
+        instructor_id = random.choice(instructor_ids)
+        cursor.execute(
+            "INSERT INTO courses (name, instructor_id) VALUES (?, ?)",
+            (name, instructor_id)
+        )
+        course_ids.append(cursor.lastrowid)
+
+    # Generate study sessions for each student
+    for student_id in student_ids:
+        enrolled = random.sample(course_ids, random.randint(3, 5))
+        for course_id in enrolled:
+            for _ in range(random.randint(min_sessions, max_sessions)):
+                start = fake.date_time_between(start_date='-356d', end_date='now')
+                end = start + timedelta(minutes=random.randint(10, 90))
+                cursor.execute(
+                    "INSERT INTO study_sessions (user_id, course_id, start_time, end_time) VALUES (?, ?, ?, ?)",
+                    (student_id, course_id, start.isoformat(), end.isoformat()))
+                    
+    
+    conn.commit()
+
+    # Everything below this line is for testing purposes
+    cursor.execute("SELECT COUNT(*) FROM users")
+    users = cursor.fetchone()[0]
+    cursor.execute("SELECT COUNT(*) FROM instructors")
+    instructors = cursor.fetchone()[0]
+    cursor.execute("SELECT COUNT(*) FROM students")
+    students = cursor.fetchone()[0]
+    cursor.execute("SELECT COUNT(*) FROM courses")
+    courses = cursor.fetchone()[0]
+    cursor.execute("SELECT COUNT(*) FROM study_sessions")
+    study_sessions = cursor.fetchone()[0]
+
+    conn.close()
+
+    return {
+        "users": users,
+        "instructors": instructors,
+        "students": students,
+        "courses": courses,
+        "study_sessions": study_sessions
+    }

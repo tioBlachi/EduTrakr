@@ -132,4 +132,25 @@ def generate_db_data(db_name='edutrakr.db', num_students=20, num_instructors=10,
                     
     
     conn.commit()
+
+    # Everything below this line is for testing purposes
+    cursor.execute("SELECT COUNT(*) FROM users")
+    users = cursor.fetchone()[0]
+    cursor.execute("SELECT COUNT(*) FROM instructors")
+    instructors = cursor.fetchone()[0]
+    cursor.execute("SELECT COUNT(*) FROM students")
+    students = cursor.fetchone()[0]
+    cursor.execute("SELECT COUNT(*) FROM courses")
+    courses = cursor.fetchone()[0]
+    cursor.execute("SELECT COUNT(*) FROM study_sessions")
+    study_sessions = cursor.fetchone()[0]
+
     conn.close()
+
+    return {
+        "users": users,
+        "instructors": instructors,
+        "students": students,
+        "courses": courses,
+        "study_sessions": study_sessions
+    }

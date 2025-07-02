@@ -7,6 +7,7 @@ see streamlit docs for more info
 """
 
 import streamlit as st
+import utils as util
 
 # Page configuration
 st.set_page_config(page_title="EduTrakr", page_icon="📚")
@@ -26,7 +27,13 @@ register_pressed = st.button("Register")
 # Actions
 if login_pressed:
     st.write(f"Attempting to log in user: `{username}`")
-    # authenticate_user(username, password)
+    if login_pressed:
+        user = util.check_user_credentials(username, password)
+        if user:
+            st.success("Login successful!")
+            st.write(f"Welcome back!")
+        else:
+            st.error("Invalid email or password.")
 
 if register_pressed:
     st.write("Redirecting to registration page...")

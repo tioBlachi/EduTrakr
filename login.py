@@ -25,7 +25,7 @@ def init_db():
 init_db() 
 
 # Input fields
-username = st.text_input("Username")
+email = st.text_input("Email")
 password = st.text_input("Password", type="password")
 
 # Login button
@@ -36,9 +36,9 @@ register_pressed = st.button("Register")
 
 # Actions
 if login_pressed:
-    st.write(f"Attempting to log in user: `{username}`")
+    st.write(f"Attempting to log in user: `{email}`")
     if login_pressed:
-        user = util.check_user_credentials(username, password)
+        user = util.check_user_credentials(email, password)
         if user:
             st.success("Login successful!")
             st.write(f"Welcome back!")

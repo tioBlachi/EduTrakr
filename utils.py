@@ -171,3 +171,44 @@ def check_user_credentials(email: str, password: str, db_name='edutrakr.db'):
 
     conn.close()
     return user
+
+
+def add_user(name: str, email: str, password: str, role: str, db_name='edutrakr.db') -> bool:
+    """
+    Adds a new user to the database and links them to the correct role table.
+    Returns True if successful, False if the email already exists or error occurs.
+    """
+    
+    hashed_pw = hash_password(password)
+
+    try:
+        conn = sqlite3.connect(db_name)
+        cursor = conn.cursor()
+
+        # Check for duplicate email
+        cursor.execute("SELECT * FROM users WHERE email = ?", (email,))
+        if cursor.fetchone():
+            return False  # Email already exists
+
+        # Insert into users table
+        cursor.execute(
+            "INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)",
+            (name, email, hashed_pw, role)
+        )
+        user_id = cursor.lastrowid
+
+        # Insert into role-specific table
+        if role.lower() == 'student':
+            cursor.execute("INSERT INTO students (user_id) VALUES (?)", (user_id,))
+        elif role.lower() == 'instructor':
+            cursor.execute("INSERT INTO instructors (user_id) VALUES (?)", (user_id,))
+
+        conn.commit()
+        return True
+
+    except Exception as e:
+        print(f"Error adding user: {e}")
+        return False
+
+    finally:
+        conn.close()

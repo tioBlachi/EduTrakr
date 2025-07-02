@@ -1,6 +1,6 @@
-
-
 import streamlit as st
+import utils as util
+import time
 import re
 
 st.markdown("<h1 style='text-align: center;'>Register for EduTrakr</h1>", unsafe_allow_html=True)
@@ -62,6 +62,13 @@ if registrationButton:
             valid = False
 
         if valid: 
-            st.success("Registered successfully! Redirecting you to login page...")
-            st.switch_page("login.py")
+            name = f"{firstName.capitalize()} {lastName.capitalize()}"
+            role = registrationFormValues["role"].lower()
+
+            if util.add_user(name, email, password, role):
+                st.success("Registered successfully! Redirecting you to login page...")
+                time.sleep(2)
+                st.switch_page("login.py")
+            else:
+                st.error("Registration failed. User already exists")
     

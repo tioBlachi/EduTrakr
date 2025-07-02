@@ -8,11 +8,17 @@ see streamlit docs for more info
 
 import streamlit as st
 import utils as util
+import database as db
 
 # Page configuration
 st.set_page_config(page_title="EduTrakr", page_icon="📚")
 st.title("📚 EduTrakr")
 st.subheader("Your personal study time tracker")
+
+# need to initialize a new database when rerunning the app for development
+# this will also fill the db with fake user data
+db.initialize_database()
+util.generate_db_data()
 
 # Input fields
 username = st.text_input("Username")

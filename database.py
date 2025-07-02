@@ -4,8 +4,7 @@ import os
 
 def initialize_database(db_name='edutrakr.db'):
     if os.path.exists(db_name):
-        print(f"Database '{db_name}' already exists. Initialization skipped.")
-        return
+        os.remove(db_name)
 
     conn = sqlite3.connect(db_name)
     cursor = conn.cursor()

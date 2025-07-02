@@ -63,5 +63,5 @@ if registrationButton:
 
         if valid: 
             st.success("Registered successfully! Redirecting you to login page...")
-            st.switch_page("pages/login.py")
+            st.switch_page("login.py")
     

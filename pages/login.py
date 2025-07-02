@@ -8,12 +8,27 @@ see streamlit docs for more info
 
 import streamlit as st
 
+# Page configuration
 st.set_page_config(page_title="EduTrakr", page_icon="📚")
 st.title("📚 EduTrakr")
 st.subheader("Your personal study time tracker")
-st.write("Testing to see if live updates work, they do")
 
-pressed = st.button("Press me")
+# Input fields
+username = st.text_input("Username")
+password = st.text_input("Password", type="password")
 
-if pressed:
-    st.write("You pressed the button!")
+# Login button
+login_pressed = st.button("Login")
+
+# Register button (below login)
+register_pressed = st.button("Register")
+
+# Actions
+if login_pressed:
+    st.write(f"Attempting to log in user: `{username}`")
+    # authenticate_user(username, password)
+
+if register_pressed:
+    st.write("Redirecting to registration page...")
+    st.switch_page("pages/register.py")
+

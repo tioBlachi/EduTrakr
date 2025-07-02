@@ -17,8 +17,12 @@ st.subheader("Your personal study time tracker")
 
 # need to initialize a new database when rerunning the app for development
 # this will also fill the db with fake user data
-db.initialize_database()
-util.generate_db_data()
+@st.cache_resource
+def init_db():
+    db.initialize_database()
+    util.generate_db_data()
+
+init_db() 
 
 # Input fields
 username = st.text_input("Username")

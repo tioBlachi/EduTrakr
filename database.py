@@ -1,5 +1,4 @@
 import sqlite3
-import hashlib
 import os
 
 def initialize_database(db_name='edutrakr.db'):

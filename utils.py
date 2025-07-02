@@ -45,6 +45,7 @@ def is_valid_password(password: str) -> bool:
     return bool(re.fullmatch(pattern, password))
 
 
+
 def generate_db_data(db_name='edutrakr.db', num_students=20, num_instructors=10, num_courses=15, min_sessions=30, max_sessions=40):
     fake.unique.clear()  # Clear unique data to avoid duplicates
     conn = sqlite3.connect(db_name)
@@ -154,3 +155,19 @@ def generate_db_data(db_name='edutrakr.db', num_students=20, num_instructors=10,
         "courses": courses,
         "study_sessions": study_sessions
     }
+
+def check_user_credentials(email: str, password: str, db_name='edutrakr.db'):
+    """
+    Verifies if a user exists with the given email and password.
+    Returns user info if correct, else None.
+    """
+    conn = sqlite3.connect(db_name)
+    cursor = conn.cursor()
+
+    hashed_pw = hash_password(password)
+
+    cursor.execute("SELECT * FROM users WHERE email = ? AND password = ?", (email, hashed_pw))
+    user = cursor.fetchone()
+
+    conn.close()
+    return user

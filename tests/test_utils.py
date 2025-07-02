@@ -1,7 +1,7 @@
-import sys, os
+import sys, os, sqlite3
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from utils import is_valid_email, is_valid_name, is_valid_password, generate_db_data
+from utils import hash_password, is_valid_email, is_valid_name, is_valid_password, generate_db_data, check_user_credentials
 from database import initialize_database
 
 
@@ -66,3 +66,34 @@ def test_generate_db_data():
     assert counts['courses'] == 15
     assert counts["users"] == 8
     assert counts['study_sessions'] > 0
+
+
+def test_user_authentication():
+    test_db = 'test_edutrakr.db'
+
+    if os.path.exists(test_db):
+        os.remove(test_db)
+
+    initialize_database(test_db)
+
+    conn = sqlite3.connect(test_db)
+    cursor = conn.cursor()
+    name = 'Test User'
+    password = 'testpass'
+    hashed = hash_password(password)
+    email = 'test@test.com'
+    role = 'student'
+
+    cursor.execute('INSERT INTO users (name, email, password, role) VALUES (?,?,?,?)', (name, email, hashed, role))
+
+    conn.commit()
+    conn.close()
+
+    user = check_user_credentials(email, password, db_name=test_db)
+
+    assert user is not None
+    assert user[1] == name
+    assert user[2] == email
+    assert user[3] == hashed
+    assert user[4] == role
+

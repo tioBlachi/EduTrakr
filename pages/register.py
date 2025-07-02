@@ -1,6 +1,7 @@
 
 
 import streamlit as st
+import re
 
 st.markdown("<h1 style='text-align: center;'>Register for EduTrakr</h1>", unsafe_allow_html=True)
 st.markdown("<h3 style='text-align: center;'>Create an EduTrakr Account</h3>", unsafe_allow_html=True)
@@ -37,12 +38,20 @@ if registrationButton:
         email = registrationFormValues["email"].strip()
         password = registrationFormValues["password"]
         verifyPassword = registrationFormValues["verify-password"]
+        emailRegex = r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
+        
 
         valid = True
 
         if not firstName.isalpha() or not lastName.isalpha:
             st.error("Please enter a valid first and late name")
             valid = False
+        
+        # check for email validation probably have to use re
+        if not re.match(emailRegex, email):
+            st.error(f"Invalid email. Please enter a valid email.")
+            valid = False
+
 
         if len(password) < 6: 
             st.error("Password must be at least 6 characters long.")
@@ -54,5 +63,5 @@ if registrationButton:
 
         if valid: 
             st.success("Registered successfully! Redirecting you to login page...")
-            st.switch_page("login")
+            st.switch_page("pages/login.py")
     

@@ -26,11 +26,11 @@ init_db()
 
 # Input fields
 email = st.text_input("Email")
-if not util.is_valid_email(email):
+if not util.is_valid_email(email) and email:
     st.error("Invalid Email Format")
 
 password = st.text_input("Password", type="password")
-if len(password) <= 6:
+if len(password) <= 6 and password:
     st.error("Password must be at least 6 characters long")
 
 # Login button

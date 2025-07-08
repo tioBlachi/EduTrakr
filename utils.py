@@ -231,3 +231,21 @@ def get_study_sessions(user_id: int, db_name: str):
     conn.close()
 
     return sessions
+
+
+def get_random_student(db_name: str):
+    conn = sqlite3.connect(db_name)
+    cursor = conn.cursor()
+
+    cursor.execute('''
+    SELECT id, name, role FROM users WHERE role = "student"
+''')
+    all_students = cursor.fetchall()
+    
+    conn.close()
+
+    if not all_students:
+        return None
+    student = random.choice(all_students)
+    
+    return student

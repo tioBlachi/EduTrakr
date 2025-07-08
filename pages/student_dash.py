@@ -12,9 +12,7 @@ role = ss.role
 st.set_page_config(f"{name}'s Dashboard", page_icon='📚', layout='wide')
 st.title(f'{name}\'s {role.capitalize()} Dashboard')
 
-user_id = 11 # not reliable, user 11 may not be a student, just for testing
-
-sessions = ut.get_study_sessions(user_id, "edutrakr.db")
+sessions = ut.get_study_sessions(id, "edutrakr.db")
 
 df = pd.DataFrame(sessions, columns=["Session Id", "User ID", "Course Name", "Start Time", "End Time"])
 
@@ -72,3 +70,9 @@ st.dataframe(df)
 # --- Stretch Goal for Anyone ---
 # - Check for duplicate course names before inserting into the database.
 # - Consider sorting the dropdown list alphabetically or by most recent.
+
+logout = st.button("Logout")
+
+if logout:
+    ss.clear
+    st.switch_page('login.py')

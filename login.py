@@ -9,6 +9,9 @@ see streamlit docs for more info
 import streamlit as st
 import utils as util
 import database as db
+import time
+
+ss = st.session_state
 
 # Page configuration
 st.set_page_config(page_title="EduTrakr", page_icon="📚")
@@ -30,7 +33,7 @@ if not util.is_valid_email(email) and email:
     st.error("Invalid Email Format")
 
 password = st.text_input("Password", type="password")
-if len(password) <= 6 and password:
+if len(password) < 6 and password:
     st.error("Password must be at least 6 characters long")
 
 # Login button
@@ -45,8 +48,15 @@ if login_pressed:
     if login_pressed:
         user = util.check_user_credentials(email, password)
         if user:
-            st.success("Login successful!")
-            st.write(f"Welcome back!")
+            user_id = ss.user_id = user[0]
+            name = ss.name = user[1]
+            role = ss.role = user[4]
+            st.success("Login successful! Redirecting...")
+            time.sleep(1.5)
+            if role.lower() == 'student':
+                st.switch_page("pages/student_dash.py")
+            else:
+                st.switch_page("pages/instructor_dash.py")
         else:
             st.error("Invalid email or password.")
 

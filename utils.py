@@ -212,3 +212,40 @@ def add_user(name: str, email: str, password: str, role: str, db_name='edutrakr.
 
     finally:
         conn.close()
+
+
+def get_study_sessions(user_id: int, db_name: str):
+    conn = sqlite3.connect(db_name)
+    cursor = conn.cursor()
+
+    cursor.execute('''
+        SELECT study_sessions.id, study_sessions.user_id, courses.name, study_sessions.start_time, study_sessions.end_time
+        FROM study_sessions
+        JOIN courses ON study_sessions.course_id = courses.id
+        WHERE study_sessions.user_id = ?
+        ORDER BY study_sessions.id ASC               
+    ''', (int(user_id),))
+
+    sessions = cursor.fetchall()
+
+    conn.close()
+
+    return sessions
+
+
+def get_random_student(db_name: str):
+    conn = sqlite3.connect(db_name)
+    cursor = conn.cursor()
+
+    cursor.execute('''
+    SELECT id, name, role FROM users WHERE role = "student"
+''')
+    all_students = cursor.fetchall()
+    
+    conn.close()
+
+    if not all_students:
+        return None
+    student = random.choice(all_students)
+    
+    return student

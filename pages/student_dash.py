@@ -44,6 +44,21 @@ st.dataframe(df)
 #    - Ensure that after adding a course or a study session, the Streamlit widgets update accordingly.
 #    - Use session state or conditional logic to handle rerendering components as needed.
 
+#  Course Selection Dropdown 
+course_names = df["Course Name"].unique().tolist()
+selected_course = st.selectbox("Select a Course", course_names)
+displayed_course = df[df["Course Name"] == selected_course]
+
+# Display Refresh 
+if "refresh_key" not in ss:
+    ss.refresh_key = 0
+
+if st.button("Refresh Data"):
+    ss.refresh_key += 1
+    st.rerun()
+
+st.dataframe(displayed_course)
+
 # --- Adam's Tasks ---
 # 1. Line Chart of Study Time
 #    - Add a new "Date" column using `.dt.date` from the filtered course’s Start Time.

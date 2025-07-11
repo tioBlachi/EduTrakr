@@ -48,6 +48,7 @@ st.dataframe(df)
 course_names = df["Course Name"].unique().tolist()
 selected_course = st.selectbox("Select a Course", course_names)
 displayed_course = df[df["Course Name"] == selected_course]
+displayed_course["Date"] = displayed_course["Start Time"].dt.date
 
 # Display Refresh 
 if "refresh_key" not in ss:
@@ -57,7 +58,14 @@ if st.button("Refresh Data"):
     ss.refresh_key += 1
     st.rerun()
 
-st.dataframe(displayed_course)
+# ---- Line chart
+summary = (
+    displayed_course.groupby("Date")["Study Time"]
+        .sum()
+        .reset_index()
+    )
+st.markdown(f"### 📈 Study Time for {selected_course}")
+st.line_chart(data=summary, x = "Date", y = "Study Time", use_container_width=True)
 
 # --- Adam's Tasks ---
 # 1. Line Chart of Study Time

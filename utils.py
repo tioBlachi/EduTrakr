@@ -249,3 +249,25 @@ def get_random_student(db_name: str):
     student = random.choice(all_students)
     
     return student
+
+def get_courses(user_id, db_name: str):
+    conn = sqlite3.connect(db_name)
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT name FROM courses ORDER BY name ASC")
+    courses = [row[0] for row in cursor.fetchall()]
+
+    conn.close()
+    return courses
+
+
+# user insert new course
+def insert_course(user_id, course_name, db_name: str):
+    conn = sqlite3.connect(db_name)
+    cursor = conn.cursor()
+
+    cursor.execute(
+        "INSERT INTO courses (name, instructor_id) VALUES (?, ?)", (course_name, user_id)
+    )
+    conn.commit()
+    conn.close

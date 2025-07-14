@@ -8,7 +8,7 @@ import re
 from faker import Faker
 from datetime import timedelta
 from database import initialize_database
-import hashlib, random, sqlite3, os
+import hashlib, random, sqlite3, os, datetime
 
 
 fake = Faker()
@@ -269,5 +269,37 @@ def insert_course(user_id, course_name, db_name: str):
     cursor.execute(
         "INSERT INTO courses (name, instructor_id) VALUES (?, ?)", (course_name, user_id)
     )
+    # new course id
+    course_id = cursor.lastrowid
+    now = datetime.datetime.now().isoformat()
+    # placeholder study session start_time = end_time
+    cursor.execute("INSERT INTO study_sessions (user_id, course_id, start_time, end_time) VALUES (?,?,?,?)",
+    (user_id, course_id, now, now)
+    )
     conn.commit()
-    conn.close
+    conn.close()
+
+
+def insert_study_session(user_id, course_name, start_time, end_time, db_name: str):
+    conn = sqlite3.connect(db_name)
+    cursor = conn.cursor()
+
+    # get the course ID from the course name
+    cursor.execute("SELECT id FROM courses WHERE name = ?", (course_name,))
+    result = cursor.fetchone()
+    
+    if result:
+        course_id = result[0]
+
+        # insert study session
+        cursor.execute(
+            "INSERT INTO study_sessions (user_id, course_id, start_time, end_time) VALUES (?, ?, ?, ?)",
+            (user_id, course_id, start_time.isoformat(), end_time.isoformat())
+        )
+
+        conn.commit()
+    else:
+        print(f"[Error] Course '{course_name}' not found in the database.")
+
+    conn.close()
+

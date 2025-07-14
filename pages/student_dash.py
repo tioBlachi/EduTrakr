@@ -27,20 +27,15 @@ st.dataframe(df)
 
 
 #  Course Selection Dropdown 
-# course_names = df["Course Name"].unique().tolist()
-course_names = ut.get_courses(id, "edutrakr.db")
+course_names = df["Course Name"].unique().tolist()
+#course_names = ut.get_courses(id, "edutrakr.db")
 
 selected_course = st.selectbox("Select a Course", course_names)
 displayed_course = df[df["Course Name"] == selected_course]
 displayed_course["Date"] = displayed_course["Start Time"].dt.date
 
 # Display Refresh 
-if "refresh_key" not in ss:
-    ss.refresh_key = 0
-
-if st.button("Refresh Data"):
-    ss.refresh_key += 1
-    st.rerun()
+#
 
 # ---- Line chart
 summary = (
@@ -60,7 +55,7 @@ with st.form("add_study_session_form"):
         start_date = st.date_input("Start Date")
         start_time = st.time_input("Start Time")
     with col2:
-        end_date = st.date_input("End Date", min_value=start_date)
+        end_date = st.date_input("End Date")#, min_value=start_date)
         end_time = st.time_input("End Time")
     
     submitted = st.form_submit_button("Add Session")
@@ -96,13 +91,8 @@ with st.form("add_new_course_form"):
             except Exception as e:
                 st.error(f"Failed to add course: {e}")
 
-
-# --- Stretch Goal for Anyone ---
-# - Check for duplicate course names before inserting into the database.
-# - Consider sorting the dropdown list alphabetically or by most recent.
-
 logout = st.button("Logout")
 
 if logout:
-    ss.clear
+    ss.clear()
     st.switch_page('login.py')

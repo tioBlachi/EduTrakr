@@ -266,16 +266,30 @@ def insert_course(user_id, course_name, db_name: str):
     conn = sqlite3.connect(db_name)
     cursor = conn.cursor()
 
+    # We'll attach a random instructor from the instructor table to this course
+    cursor.execute("SELECT user_id FROM instructors")
+    instructors = cursor.fetchall()
+
+    if not instructors:
+        conn.close()
+        raise Exception("No instructors found in the database.")
+
+    instructor_id = random.choice(instructors)[0]
+
+    # Insert new course with random instructor
     cursor.execute(
-        "INSERT INTO courses (name, instructor_id) VALUES (?, ?)", (course_name, user_id)
+        "INSERT INTO courses (name, instructor_id) VALUES (?, ?)",
+        (course_name, instructor_id)
     )
-    # new course id
+
     course_id = cursor.lastrowid
     now = datetime.datetime.now().isoformat()
-    # placeholder study session start_time = end_time
-    cursor.execute("INSERT INTO study_sessions (user_id, course_id, start_time, end_time) VALUES (?,?,?,?)",
-    (user_id, course_id, now, now)
+
+    cursor.execute(
+        "INSERT INTO study_sessions (user_id, course_id, start_time, end_time) VALUES (?, ?, ?, ?)",
+        (user_id, course_id, now, now)
     )
+
     conn.commit()
     conn.close()
 

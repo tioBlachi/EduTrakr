@@ -8,7 +8,7 @@ import re
 from faker import Faker
 from datetime import timedelta
 from database import initialize_database
-import hashlib, random, sqlite3, os
+import hashlib, random, sqlite3, os, datetime
 
 
 fake = Faker()
@@ -249,3 +249,71 @@ def get_random_student(db_name: str):
     student = random.choice(all_students)
     
     return student
+
+def get_courses(user_id, db_name: str):
+    conn = sqlite3.connect(db_name)
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT name FROM courses ORDER BY name ASC")
+    courses = [row[0] for row in cursor.fetchall()]
+
+    conn.close()
+    return courses
+
+
+# user insert new course
+def insert_course(user_id, course_name, db_name: str):
+    conn = sqlite3.connect(db_name)
+    cursor = conn.cursor()
+
+    # We'll attach a random instructor from the instructor table to this course
+    cursor.execute("SELECT user_id FROM instructors")
+    instructors = cursor.fetchall()
+
+    if not instructors:
+        conn.close()
+        raise Exception("No instructors found in the database.")
+
+    instructor_id = random.choice(instructors)[0]
+
+    # Insert new course with random instructor
+    cursor.execute(
+        "INSERT INTO courses (name, instructor_id) VALUES (?, ?)",
+        (course_name, instructor_id)
+    )
+
+    course_id = cursor.lastrowid
+    now = datetime.datetime.now().isoformat()
+
+    cursor.execute(
+        "INSERT INTO study_sessions (user_id, course_id, start_time, end_time) VALUES (?, ?, ?, ?)",
+        (user_id, course_id, now, now)
+    )
+
+    conn.commit()
+    conn.close()
+
+
+def insert_study_session(user_id, course_name, start_time, end_time, db_name: str):
+    conn = sqlite3.connect(db_name)
+    cursor = conn.cursor()
+
+    # get the course ID from the course name
+    cursor.execute("SELECT id FROM courses WHERE name = ?", (course_name,))
+    result = cursor.fetchone()
+    
+    if result:
+        course_id = result[0]
+
+        # insert study session
+        cursor.execute(
+            "INSERT INTO study_sessions (user_id, course_id, start_time, end_time) VALUES (?, ?, ?, ?)",
+            (user_id, course_id, start_time.isoformat(), end_time.isoformat())
+        )
+
+        conn.commit()
+    else:
+        print(f"[Error] Course '{course_name}' not found in the database.")
+
+    conn.close()
+

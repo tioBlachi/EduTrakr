@@ -34,9 +34,6 @@ selected_course = st.selectbox("Select a Course", course_names)
 displayed_course = df[df["Course Name"] == selected_course]
 displayed_course["Date"] = displayed_course["Start Time"].dt.date
 
-# Display Refresh 
-#
-
 # ---- Line chart
 summary = (
     displayed_course.groupby("Date")["Study Time"]

@@ -24,6 +24,7 @@ def initialize_database(db_name='edutrakr.db'):
         CREATE TABLE IF NOT EXISTS students (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             user_id INTEGER NOT NULL,
+            private INTEGER DEFAULT 0,
             FOREIGN KEY (user_id) REFERENCES users(id)
         )
     ''')

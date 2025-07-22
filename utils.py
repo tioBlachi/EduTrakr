@@ -251,6 +251,23 @@ def get_random_student(db_name: str):
     
     return student
 
+def get_random_instructor(db_name: str):
+    conn = sqlite3.connect(db_name)
+    cursor = conn.cursor()
+
+    cursor.execute('''
+    SELECT id, name, role FROM users WHERE role = "instructor"
+''')
+    all_instructors = cursor.fetchall()
+    
+    conn.close()
+
+    if not all_instructors:
+        return None
+    instructor = random.choice(all_instructors)
+    
+    return instructor
+
 def get_courses(user_id, db_name: str):
     conn = sqlite3.connect(db_name)
     cursor = conn.cursor()

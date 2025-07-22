@@ -85,9 +85,10 @@ def generate_db_data(db_name='edutrakr.db', num_students=20, num_instructors=10,
         )
 
         user_id = cursor.lastrowid
+        private = random.choice([0, 0, 1, 0, 0, 0])
         cursor.execute(
-            "INSERT INTO students (user_id) VALUES (?)",
-            (user_id,)
+            "INSERT INTO students (user_id, private) VALUES (?, ?)",
+            (user_id, private)
         )
         student_ids.append(user_id)
 

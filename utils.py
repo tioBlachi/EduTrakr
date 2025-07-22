@@ -199,7 +199,7 @@ def add_user(name: str, email: str, password: str, role: str, db_name='edutrakr.
 
         # Insert into role-specific table
         if role.lower() == 'student':
-            cursor.execute("INSERT INTO students (user_id) VALUES (?)", (user_id,))
+            cursor.execute("INSERT INTO students (user_id) VALUES (?, 0)", (user_id,))
         elif role.lower() == 'instructor':
             cursor.execute("INSERT INTO instructors (user_id) VALUES (?)", (user_id,))
 

@@ -335,3 +335,17 @@ def insert_study_session(user_id, course_name, start_time, end_time, db_name: st
 
     conn.close()
 
+def get_student_privacy(user_id: int, db_name='edutrakr.db') -> bool:
+    conn = sqlite3.connect(db_name)
+    cursor = conn.cursor()
+    cursor.execute("SELECT private FROM students WHERE user_id = ?", (user_id,))
+    result = cursor.fetchone()
+    conn.close()
+    return result and result[0] == 1
+
+def set_student_privacy(user_id: int, is_private: bool, db_name='edutrakr.db'):
+    conn = sqlite3.connect(db_name)
+    cursor = conn.cursor()
+    cursor.execute("UPDATE students SET private = ? WHERE user_id = ?", (int(is_private), user_id))
+    conn.commit()
+    conn.close()

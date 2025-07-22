@@ -42,7 +42,8 @@ login_pressed = st.button("Login")
 # Register button (below login)
 register_pressed = st.button("Register")
 
-debug_pressed = st.button("DEBUG")
+random_student = st.button("Random Student")
+random_instructor = st.button("Random Instructor")
 
 # Actions
 if login_pressed:
@@ -66,9 +67,16 @@ if register_pressed:
     st.write("Redirecting to registration page...")
     st.switch_page("pages/register.py")
 
-if debug_pressed:
+if random_student:
     dummy = util.get_random_student('edutrakr.db')
     ss.user_id = dummy[0]
     ss.name = dummy[1]
     ss.role = dummy[2]
     st.switch_page("pages/student_dash.py")
+
+if random_instructor:
+    dummy = util.get_random_instructor('edutrakr.db')
+    ss.user_id = dummy[0]
+    ss.name = dummy[1]
+    ss.role = dummy[2]
+    st.switch_page("pages/instructor_dash.py")

@@ -10,6 +10,7 @@ name = ss.name
 id = ss.user_id
 role = ss.role
 
+
 st.set_page_config(f"{name}'s Dashboard", page_icon='📚', layout='wide')
 st.title(f'{name}\'s {role.capitalize()} Dashboard')
 
@@ -19,11 +20,23 @@ df = pd.DataFrame(sessions, columns=["Session Id", "User ID", "Course Name", "St
 
 st.divider()
 
+# ---- PRIVACY TOGGLE ----
+# Uncomment and implement the two function in utils.py to enable student privacy toggle
+
+# is_private = ut.get_student_privacy(id)
+
+# privacy = st.checkbox("Make My Study Sessions Private", value=is_private)
+
+# if privacy != is_private:
+#     ut.set_student_privacy(id, privacy)
+#     st.success("Privacy Setting Updated")
+#     st.rerun()
+
 df["Start Time"] = pd.to_datetime(df["Start Time"], format='ISO8601')
 df["End Time"] = pd.to_datetime(df["End Time"], format='ISO8601')
 df["Study Time"] = (df["End Time"] - df["Start Time"]).dt.total_seconds() / 60
 
-st.dataframe(df)
+#st.dataframe(df)
 
 
 #  Course Selection Dropdown 

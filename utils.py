@@ -85,9 +85,10 @@ def generate_db_data(db_name='edutrakr.db', num_students=20, num_instructors=10,
         )
 
         user_id = cursor.lastrowid
+        private = random.choice([0, 0, 1, 0, 0, 0])
         cursor.execute(
-            "INSERT INTO students (user_id) VALUES (?)",
-            (user_id,)
+            "INSERT INTO students (user_id, private) VALUES (?, ?)",
+            (user_id, private)
         )
         student_ids.append(user_id)
 
@@ -199,7 +200,7 @@ def add_user(name: str, email: str, password: str, role: str, db_name='edutrakr.
 
         # Insert into role-specific table
         if role.lower() == 'student':
-            cursor.execute("INSERT INTO students (user_id) VALUES (?)", (user_id,))
+            cursor.execute("INSERT INTO students (user_id) VALUES (?, 0)", (user_id,))
         elif role.lower() == 'instructor':
             cursor.execute("INSERT INTO instructors (user_id) VALUES (?)", (user_id,))
 
@@ -249,6 +250,23 @@ def get_random_student(db_name: str):
     student = random.choice(all_students)
     
     return student
+
+def get_random_instructor(db_name: str):
+    conn = sqlite3.connect(db_name)
+    cursor = conn.cursor()
+
+    cursor.execute('''
+    SELECT id, name, role FROM users WHERE role = "instructor"
+''')
+    all_instructors = cursor.fetchall()
+    
+    conn.close()
+
+    if not all_instructors:
+        return None
+    instructor = random.choice(all_instructors)
+    
+    return instructor
 
 def get_courses(user_id, db_name: str):
     conn = sqlite3.connect(db_name)
@@ -317,3 +335,17 @@ def insert_study_session(user_id, course_name, start_time, end_time, db_name: st
 
     conn.close()
 
+def get_student_privacy(user_id: int, db_name='edutrakr.db') -> bool:
+    conn = sqlite3.connect(db_name)
+    cursor = conn.cursor()
+    cursor.execute("SELECT private FROM students WHERE user_id = ?", (user_id,))
+    result = cursor.fetchone()
+    conn.close()
+    return result and result[0] == 1
+
+def set_student_privacy(user_id: int, is_private: bool, db_name='edutrakr.db'):
+    conn = sqlite3.connect(db_name)
+    cursor = conn.cursor()
+    cursor.execute("UPDATE students SET private = ? WHERE user_id = ?", (int(is_private), user_id))
+    conn.commit()
+    conn.close()

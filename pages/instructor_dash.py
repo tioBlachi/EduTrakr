@@ -28,6 +28,30 @@ st.divider()
 # ADAM'S SECTION
 # ============================
 
+# UI to select course
+instructor_id = st.session_state.get("user_id")
+courses = ut.get_courses_for_instructor(instructor_id)
+course_names = ["All Courses"] + [course["name"] for course in courses]
+selected_course = st.selectbox("Select a course", course_names)
+
+if selected_course == "All Courses":
+    student_ids = ut.get_all_visible_students_for_instructor(instructor_id)
+    #sessions = ut.get_study_sessions_for_students(student_ids)
+    # Get course_ids that this instructor teaches
+    course_ids = [course["id"] for course in courses]
+
+    # Filter sessions to only these courses
+    sessions = ut.get_study_sessions_for_students(student_ids, course_ids=course_ids)
+
+else:
+    course_id = next(c["id"] for c in courses if c["name"] == selected_course)
+    student_ids = ut.get_visible_students_for_course(course_id)
+    sessions = ut.get_study_sessions_for_students(student_ids, course_id=course_id)
+
+df = ut.format_sessions_to_dataframe(sessions)
+st.dataframe(df)
+
+
 # Task: Based on the selected course, retrieve all student study sessions
 # - Exclude students with private = 1
 # - If "All Courses" is selected, show sessions from all courses the instructor teaches

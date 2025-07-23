@@ -9,6 +9,7 @@ from faker import Faker
 from datetime import timedelta
 from database import initialize_database
 import hashlib, random, sqlite3, os, datetime
+import pandas as pd
 
 
 fake = Faker()
@@ -349,3 +350,74 @@ def set_student_privacy(user_id: int, is_private: bool, db_name='edutrakr.db'):
     cursor.execute("UPDATE students SET private = ? WHERE user_id = ?", (int(is_private), user_id))
     conn.commit()
     conn.close()
+
+def get_visible_students_for_course(course_id, db_name='edutrakr.db'):
+    conn = sqlite3.connect(db_name)
+    cursor = conn.cursor()
+
+    cursor.execute('''
+        SELECT s.user_id
+        FROM enrollments e
+        JOIN students s ON e.student_id = s.user_id
+        WHERE e.course_id = ? AND s.private = 0
+    ''', (course_id,))
+
+    result = [row[0] for row in cursor.fetchall()]
+    conn.close()
+    return result
+
+
+def get_all_visible_students_for_instructor(instructor_id, db_name='edutrakr.db'):
+    conn = sqlite3.connect(db_name)
+    cursor = conn.cursor()
+
+    cursor.execute('''
+        SELECT DISTINCT s.user_id
+        FROM courses c
+        JOIN enrollments e ON c.id = e.course_id
+        JOIN students s ON e.student_id = s.user_id
+        WHERE c.instructor_id = ? AND s.private = 0
+    ''', (instructor_id,))
+
+    result = [row[0] for row in cursor.fetchall()]
+    conn.close()
+    return result
+
+
+def get_study_sessions_for_students(student_ids, course_id=None, db_name='edutrakr.db'):
+    if not student_ids:
+        return []
+
+    conn = sqlite3.connect(db_name)
+    cursor = conn.cursor()
+
+    placeholders = ','.join(['?'] * len(student_ids))
+    query = f'''
+        SELECT u.name, c.name, ss.start_time, ss.end_time
+        FROM study_sessions ss
+        JOIN users u ON ss.user_id = u.id
+        JOIN courses c ON ss.course_id = c.id
+        WHERE ss.user_id IN ({placeholders})
+    '''
+    params = student_ids
+
+    if course_id:
+        query += ' AND ss.course_id = ?'
+        params = student_ids + [course_id]
+
+    cursor.execute(query, params)
+    results = cursor.fetchall()
+    conn.close()
+
+    return results
+
+
+def format_sessions_to_dataframe(sessions):
+    columns = ["Student Name", "Course Name", "Start Time", "End Time", "Study Duration (min)"]
+    rows = []
+    for student_name, course_name, start_time, end_time in sessions:
+        start = pd.to_datetime(start_time)
+        end = pd.to_datetime(end_time)
+        duration = (end - start).total_seconds() / 60
+        rows.append([student_name, course_name, start, end, round(duration, 2)])
+    return pd.DataFrame(rows, columns=columns)

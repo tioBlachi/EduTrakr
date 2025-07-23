@@ -112,15 +112,36 @@ def generate_db_data(db_name='edutrakr.db', num_students=20, num_instructors=10,
         "Blockchain Technology Basics"  
     ]
 
-    # Create courses
+    # Create courses, part deux
+    # Shuffle course names to randomize assignment
+    random.shuffle(course_names)
+
     course_ids = []
-    for name in course_names[:num_courses]:
-        instructor_id = random.choice(instructor_ids)
+    course_index = 0
+
+    # First, ensure every instructor gets at least one course
+    for instructor_id in instructor_ids:
+        if course_index >= num_courses:
+            break
+        name = course_names[course_index]
         cursor.execute(
-            "INSERT INTO courses (name, instructor_id) VALUES (?, ?)",
-            (name, instructor_id)
+        "INSERT INTO courses (name, instructor_id) VALUES (?, ?)",
+        (name, instructor_id)
+    )
+        course_ids.append(cursor.lastrowid)
+        course_index += 1
+
+    # If we still have remaining courses to create, assign them randomly
+    while course_index < num_courses:
+        instructor_id = random.choice(instructor_ids)
+        name = course_names[course_index]
+        cursor.execute(
+        "INSERT INTO courses (name, instructor_id) VALUES (?, ?)",
+        (name, instructor_id)
         )
         course_ids.append(cursor.lastrowid)
+        course_index += 1
+
 
     # Generate study sessions for each student
     for student_id in student_ids:
@@ -356,10 +377,10 @@ def get_visible_students_for_course(course_id, db_name='edutrakr.db'):
     cursor = conn.cursor()
 
     cursor.execute('''
-        SELECT s.user_id
-        FROM enrollments e
-        JOIN students s ON e.student_id = s.user_id
-        WHERE e.course_id = ? AND s.private = 0
+        SELECT DISTINCT ss.user_id
+        FROM study_sessions ss
+        JOIN students s ON ss.user_id = s.user_id
+        WHERE ss.course_id = ? AND s.private = 0
     ''', (course_id,))
 
     result = [row[0] for row in cursor.fetchall()]
@@ -372,10 +393,10 @@ def get_all_visible_students_for_instructor(instructor_id, db_name='edutrakr.db'
     cursor = conn.cursor()
 
     cursor.execute('''
-        SELECT DISTINCT s.user_id
-        FROM courses c
-        JOIN enrollments e ON c.id = e.course_id
-        JOIN students s ON e.student_id = s.user_id
+        SELECT DISTINCT ss.user_id
+        FROM study_sessions ss
+        JOIN students s ON ss.user_id = s.user_id
+        JOIN courses c ON ss.course_id = c.id
         WHERE c.instructor_id = ? AND s.private = 0
     ''', (instructor_id,))
 
@@ -384,7 +405,7 @@ def get_all_visible_students_for_instructor(instructor_id, db_name='edutrakr.db'
     return result
 
 
-def get_study_sessions_for_students(student_ids, course_id=None, db_name='edutrakr.db'):
+def get_study_sessions_for_students(student_ids, course_id=None, course_ids=None, db_name='edutrakr.db'):
     if not student_ids:
         return []
 
@@ -392,6 +413,8 @@ def get_study_sessions_for_students(student_ids, course_id=None, db_name='edutra
     cursor = conn.cursor()
 
     placeholders = ','.join(['?'] * len(student_ids))
+    params = student_ids.copy()
+
     query = f'''
         SELECT u.name, c.name, ss.start_time, ss.end_time
         FROM study_sessions ss
@@ -399,12 +422,16 @@ def get_study_sessions_for_students(student_ids, course_id=None, db_name='edutra
         JOIN courses c ON ss.course_id = c.id
         WHERE ss.user_id IN ({placeholders})
     '''
-    params = student_ids
 
     if course_id:
         query += ' AND ss.course_id = ?'
         params = student_ids + [course_id]
 
+    elif course_ids:
+        course_placehoders = ','.join(['?'] * len(course_ids))
+        query += f' AND ss.course_id IN ({course_placehoders})'
+        params.extend(course_ids)
+        
     cursor.execute(query, params)
     results = cursor.fetchall()
     conn.close()
@@ -421,3 +448,16 @@ def format_sessions_to_dataframe(sessions):
         duration = (end - start).total_seconds() / 60
         rows.append([student_name, course_name, start, end, round(duration, 2)])
     return pd.DataFrame(rows, columns=columns)
+
+
+def get_courses_for_instructor(instructor_id, db_name='edutrakr.db'):
+    conn = sqlite3.connect(db_name)
+    cursor = conn.cursor()
+
+    cursor.execute('''
+        SELECT id, name FROM courses WHERE instructor_id = ?
+    ''', (instructor_id,))
+
+    results = [{"id": row[0], "name": row[1]} for row in cursor.fetchall()]
+    conn.close()
+    return results

@@ -28,16 +28,21 @@ st.divider()
 # ADAM'S SECTION
 # ============================
 
-
 # UI to select course
-instructor_id = st.session_state.get("instructor_id")
+instructor_id = st.session_state.get("user_id")
 courses = ut.get_courses_for_instructor(instructor_id)
 course_names = ["All Courses"] + [course["name"] for course in courses]
 selected_course = st.selectbox("Select a course", course_names)
 
 if selected_course == "All Courses":
     student_ids = ut.get_all_visible_students_for_instructor(instructor_id)
-    sessions = ut.get_study_sessions_for_students(student_ids)
+    #sessions = ut.get_study_sessions_for_students(student_ids)
+    # Get course_ids that this instructor teaches
+    course_ids = [course["id"] for course in courses]
+
+    # Filter sessions to only these courses
+    sessions = ut.get_study_sessions_for_students(student_ids, course_ids=course_ids)
+
 else:
     course_id = next(c["id"] for c in courses if c["name"] == selected_course)
     student_ids = ut.get_visible_students_for_course(course_id)

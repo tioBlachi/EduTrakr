@@ -1,11 +1,11 @@
-# 🐳 Docker Setup for EduTrakr
+# Docker Setup for EduTrakr
 
 This guide explains how to run the EduTrakr app inside a Docker container using Docker Compose.  
 It is intended for teammates and contributors to quickly get the development environment up and running.
 
 ---
 
-## ✅ Prerequisites
+## Prerequisites
 
 1. **Install Docker Desktop**  
    Download and install Docker Desktop for your operating system:
@@ -18,7 +18,7 @@ It is intended for teammates and contributors to quickly get the development env
 
 ---
 
-## 📦 Clone This Repository
+## Clone This Repository
 
 Use your IDE Git feature, if available, or terminal:
 
@@ -27,7 +27,7 @@ cd <your desired project path>
 git clone https://github.com/tioBlachi/EduTrakr.git
 cd EduTrakr
 ```
-## 🔧 Build and Run the Docker Container
+## Build and Run the Docker Container
 
 In the terminal, make sure you are in the root directory of the project containing the Dockerfile
 
@@ -41,7 +41,7 @@ docker compose up    # to start the app
 - Mount the current directory into the container
 - Start the Streamlit app
 
-## 🌐 View the App in Browser
+## View the App in Browser
 Once the container is running, Streamlit will output something like this in the terminal:
 ```bash
 You can now view your Streamlit app in your browser.
